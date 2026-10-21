@@ -45,6 +45,11 @@ def binary(name: str) -> str:
 
 
 def process_options() -> dict:
+    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
+        env = os.environ.copy()
+        env.pop('DYLD_LIBRARY_PATH', None)
+        env.pop('DYLD_FALLBACK_LIBRARY_PATH', None)
+        return {'env': env}
     return {'creationflags': subprocess.CREATE_NO_WINDOW} if sys.platform == 'win32' else {}
 
 

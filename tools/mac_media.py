@@ -74,5 +74,8 @@ def install(app: Path, sources: list[Path], identity: str = '-'):
             subprocess.run(command+[str(target)], check=True)
         subprocess.run(['codesign', '--force', '--sign', identity, str(target)], check=True)
     subprocess.run(['codesign', '--force', '--deep', '--sign', identity, str(app)], check=True)
-    subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True)
+    broken = [str(p.relative_to(app)) for p in app.rglob('*') if p.is_symlink() and not p.exists()]
+    if broken:
+        raise RuntimeError(f'Broken application symlinks: {broken}')
+    subprocess.run(['codesign', '--verify', '--deep', '--strict', '--verbose=4', str(app)], check=True)
     print(f'Installed and signed {len(records)} isolated native media files in {destination}')

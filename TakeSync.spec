@@ -23,14 +23,6 @@ a = Analysis([str(root / 'launch.py')], pathex=[str(root)],
     excludes=['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtPdf', 'matplotlib', 'IPython'],
     module_collection_mode={'librosa':'pyz+py', 'numba':'pyz+py'},
     noarchive=False)
-if __import__('sys').platform == 'darwin':
-    # Qt's bundled FFmpeg has the same dylib names as Homebrew's build but a
-    # different ABI. Playback uses AVFoundation; retain only Homebrew's codecs
-    # so PyInstaller rewrites the CLI tools to their matching dependencies.
-    a.binaries = [entry for entry in a.binaries if not (
-        'PySide6' in entry[1] and (
-            Path(entry[1]).name.startswith(('libav', 'libsw'))
-            or 'ffmpegmediaplugin' in Path(entry[1]).name))]
 if __import__('sys').platform == 'win32':
     # Python 3.10's older app-local MSVC runtime can shadow the newer runtime
     # required by Qt. Ship Qt's backward-compatible runtime at the bundle root.
