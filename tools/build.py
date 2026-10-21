@@ -25,6 +25,13 @@ def main():
         src = os.environ.get('TAKESYNC_'+name.upper()) or shutil.which(name)
         if not src:
             raise SystemExit(f'{name} is required on the build machine. Install FFmpeg before building.')
+        if sys.platform == 'win32' and Path(src).stat().st_size < 200_000:
+            # Chocolatey puts a launcher shim on PATH, which cannot be moved.
+            chocolatey = Path(os.environ.get('ChocolateyInstall', 'C:/ProgramData/chocolatey'))
+            candidates = list((chocolatey/'lib'/'ffmpeg'/'tools').rglob(name+'.exe'))
+            candidates = [p for p in candidates if p.stat().st_size >= 200_000]
+            if candidates:
+                src = str(max(candidates, key=lambda p: p.stat().st_size))
         suffix = '.exe' if sys.platform=='win32' else ''
         destination = vendor/(name+suffix)
         if Path(src).resolve() != destination.resolve():

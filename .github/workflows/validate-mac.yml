@@ -6,6 +6,10 @@ on:
       build_run:
         description: Desktop build run ID containing Mac artifacts
         required: true
+      apple_silicon_only:
+        description: Validate only the Apple Silicon artifact
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -16,11 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: macos-latest
-            arch: ARM64
-          - os: macos-15-intel
-            arch: X64
+        os: ${{ fromJSON(inputs.apple_silicon_only && '["macos-latest"]' || '["macos-latest","macos-15-intel"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -29,11 +29,11 @@ jobs:
           python-version: '3.11'
       - uses: actions/download-artifact@v4
         with:
-          name: TakeSync-macOS-${{ matrix.arch }}
+          name: TakeSync-macOS-${{ runner.arch }}
           path: downloaded
           github-token: ${{ github.token }}
           run-id: ${{ inputs.build_run }}
-      - run: ditto -x -k downloaded/TakeSync-macOS-${{ matrix.arch }}.zip extracted
+      - run: ditto -x -k downloaded/TakeSync-macOS-${{ runner.arch }}.zip extracted
       - run: brew install ffmpeg
       - run: python -m pip install numpy==2.2.6
       - name: Run frozen app with a system-only PATH and fresh cache
@@ -41,5 +41,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Mac-validation-${{ matrix.arch }}
+          name: Mac-validation-${{ runner.arch }}
           path: bundle-smoke/
