@@ -10,15 +10,8 @@ for name in ['ffmpeg', 'ffprobe']:
     candidate = vendor / (name + extension)
     if not candidate.exists():
         raise RuntimeError('Run tools/build.py to stage FFmpeg before packaging.')
-    native.append((str(candidate), 'vendor'))
-if __import__('sys').platform == 'darwin':
-    import subprocess
-    ffmpeg_prefix = Path(subprocess.check_output(['brew', '--prefix', 'ffmpeg'], text=True).strip())
-    # Preserve versioned library aliases: the helpers load names such as
-    # libavformat.63.dylib, rather than only the fully versioned filename.
-    media_libraries = {p for pattern in ['libav*.dylib', 'libsw*.dylib']
-                       for p in (ffmpeg_prefix/'lib').glob(pattern)}
-    native.extend((str(p), '.') for p in sorted(media_libraries))
+    if __import__('sys').platform != 'darwin':
+        native.append((str(candidate), 'vendor'))
 
 lib_data, lib_bins, lib_hidden = collect_all('librosa')
 a = Analysis([str(root / 'launch.py')], pathex=[str(root)],

@@ -27,6 +27,10 @@ def check_cancel(cancel: Event | None) -> None:
 
 def binary(name: str) -> str:
     suffix = '.exe' if sys.platform == 'win32' else ''
+    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
+        isolated = Path(sys.executable).resolve().parents[1]/'Frameworks'/'TakeSyncMedia'/name
+        if isolated.is_file():
+            return str(isolated)
     roots = [Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))]
     for root in roots:
         candidate = root / 'vendor' / (name + suffix)

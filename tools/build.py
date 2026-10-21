@@ -78,6 +78,10 @@ def main():
         build_env['PATH']=os.pathsep.join([str(Path(sys.executable).parent),str(Path(sys.base_prefix)),
                                          str(system/'System32'),str(system)])
     subprocess.run(command,cwd=ROOT,check=True,env=build_env)
+    if sys.platform == 'darwin':
+        from mac_media import install
+        install(ROOT/'dist'/'TakeSync.app', [vendor/'ffmpeg', vendor/'ffprobe'],
+                os.environ.get('TAKESYNC_CODESIGN_IDENTITY') or '-')
     print('Build ready in', ROOT/'dist')
 
 
