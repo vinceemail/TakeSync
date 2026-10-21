@@ -2,7 +2,7 @@
 
 Download **TakeSync-0.1.0-macOS-AppleSilicon.zip**, unzip it on your Mac, and move **TakeSync.app** to Applications. No Python or separate FFmpeg installation is needed.
 
-This preview targets Apple M-series Macs and is built and automatically tested on macOS 26. Older macOS releases have not been verified. It is an unsigned/not-notarized preview: macOS may require **System Settings → Privacy & Security → Open Anyway** after the first launch attempt. See [Apple's instructions](https://support.apple.com/102445).
+This preview targets Apple M-series Macs and is built and automatically tested on macOS 26. Older macOS releases have not been verified. It uses ad-hoc signing and is not notarized: macOS may require **System Settings → Privacy & Security → Open Anyway** after the first launch attempt. See [Apple's instructions](https://support.apple.com/102445).
 
 Choose both camera files and the master audio, then click **Analyse & align**. Set **Sync tolerance** in frames, prepare the comparison preview, and export FCPXML to edit with the original media. The preview needs to be prepared again after changing the proposed cuts.
 

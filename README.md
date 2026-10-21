@@ -2,6 +2,8 @@
 
 A local desktop app for aligning two synchronized camera recordings to another performance of the same music, then exporting an editable FCPXML timeline. The app uses CPU audio analysis and keeps original recordings untouched.
 
+**Apple Silicon Mac preview:** [Download TakeSync.app](https://github.com/vinceemail/TakeSync/releases/tag/v0.1.0-mac-preview). Built and automatically tested on macOS 26; no Python or separate FFmpeg installation is needed. See [Mac preview instructions](MAC_PREVIEW.md).
+
 ## Using the app
 
 1. Open **TakeSync**. Drop or choose Camera A, Camera B, and the master audio. Both videos need audible sound from the same performance.
@@ -29,7 +31,7 @@ The engine never uses recording timecodes to infer musical synchronization. It i
 
 ## Current limits
 
-This is a **0.1 preview build**, not a finished team release. macOS builds require a macOS build machine or CI runner and real Mac import/playback testing. The Windows package is built and checked separately.
+This is a **0.1 preview build**, not a finished team release. The Apple Silicon package has passed automated native Mac alignment, rendering, export and UI-startup tests. Real recording review and Resolve/Final Cut import testing on a user's Mac remain necessary. Intel Mac bundles are not yet verified. The Windows package is built and checked separately.
 
 The first build focuses on the main performance. Searching earlier false starts for optional alternate layers, manually moving individual anchors, audio-only audition controls, automatic media relinking, signed installers and automatic updating are not implemented yet. The preview must be prepared before playback; it is not instantaneous live editing of two 4K sources. The editable original-media export is the final output.
 
@@ -54,7 +56,7 @@ Build a self-contained application **on each target operating system**:
 python tools/build.py
 ```
 
-Output is `dist/TakeSync/TakeSync.exe` on Windows and `dist/TakeSync.app` on macOS. Build tools stage FFmpeg/ffprobe in `vendor/`; end users do not install those tools. On macOS, PyInstaller collects the native dependencies of the staged FFmpeg executables; validate the result on a clean Mac. The included workflow builds on Windows and macOS runners but does not publish or notarize anything. Set `TAKESYNC_CODESIGN_IDENTITY` on a configured Mac builder if you have an appropriate signing identity. A public Mac release should also be notarized.
+Output is `dist/TakeSync/TakeSync.exe` on Windows and `dist/TakeSync.app` on macOS. Build tools stage FFmpeg/ffprobe in `vendor/`; end users do not install those tools. On macOS, `tools/mac_media.py` installs a private dependency tree in the app, rewrites its library references for relocation, and signs/verifies the completed bundle. Playback uses Apple's native AVFoundation backend. The desktop workflow builds the app and exercises it before archiving; the separate Mac validation workflow can publish a preview after testing a downloaded artifact. These workflows do not notarize apps. Set `TAKESYNC_CODESIGN_IDENTITY` on a configured Mac builder if you have an appropriate signing identity. A public production release should also be notarized.
 
 The optional CLI uses the same engine:
 
