@@ -43,6 +43,9 @@ jobs:
         run: python -m pytest -q
       - name: Build self-contained app
         run: python tools/build.py
+      - name: Exercise frozen Mac app before archiving
+        if: runner.os == 'macOS'
+        run: python tools/smoke_bundle.py dist/TakeSync.app/Contents/MacOS/TakeSync
       - name: Archive Mac app preserving symlinks
         if: runner.os == 'macOS'
         run: ditto -c -k --sequesterRsrc --keepParent dist/TakeSync.app dist/TakeSync-macOS-${{ runner.arch }}.zip

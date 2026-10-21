@@ -14,7 +14,9 @@ for name in ['ffmpeg', 'ffprobe']:
 if __import__('sys').platform == 'darwin':
     import subprocess
     ffmpeg_prefix = Path(subprocess.check_output(['brew', '--prefix', 'ffmpeg'], text=True).strip())
-    media_libraries = {p.resolve() for pattern in ['libav*.dylib', 'libsw*.dylib']
+    # Preserve versioned library aliases: the helpers load names such as
+    # libavformat.63.dylib, rather than only the fully versioned filename.
+    media_libraries = {p for pattern in ['libav*.dylib', 'libsw*.dylib']
                        for p in (ffmpeg_prefix/'lib').glob(pattern)}
     native.extend((str(p), '.') for p in sorted(media_libraries))
 
