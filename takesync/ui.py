@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from threading import Event
 import sys
 import traceback
+
+if sys.platform == 'darwin':
+    os.environ.setdefault('QT_MEDIA_BACKEND', 'darwin')
 
 from PySide6.QtCore import Qt, QThread, Signal, QUrl, QTimer, QStandardPaths, QRectF
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen, QPainterPath, QIcon, QPixmap
@@ -336,10 +340,11 @@ class MainWindow(QMainWindow):
         self.scrub.sliderMoved.connect(self.seek); controls.addWidget(self.scrub, 1)
         self.build_preview = QPushButton('Build preview'); self.build_preview.clicked.connect(self.start_preview)
         controls.addWidget(self.build_preview); preview_layout.addLayout(controls)
-        self.audio = QAudioOutput(); self.audio.setVolume(.8)
-        self.video_sink = QVideoSink()
+        self.player = QMediaPlayer(self)
+        self.audio = QAudioOutput(self.player); self.audio.setVolume(.8)
+        self.video_sink = QVideoSink(self.player)
         self.video_sink.videoFrameChanged.connect(self.video.receive_frame)
-        self.player = QMediaPlayer(); self.player.setAudioOutput(self.audio); self.player.setVideoSink(self.video_sink)
+        self.player.setAudioOutput(self.audio); self.player.setVideoSink(self.video_sink)
         self.player.positionChanged.connect(self.position_changed)
         self.player.playbackStateChanged.connect(lambda state: self.play.setText('Ⅱ' if state == QMediaPlayer.PlayingState else '▶'))
         self.player.errorOccurred.connect(self.playback_error)

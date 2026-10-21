@@ -31,7 +31,9 @@ jobs:
             constraints.txt
       - name: Install FFmpeg (Mac)
         if: runner.os == 'macOS'
-        run: brew install ffmpeg
+        run: |
+          brew install ffmpeg
+          echo "$(brew --prefix ffmpeg)/bin" >> "$GITHUB_PATH"
       - name: Install FFmpeg (Windows)
         if: runner.os == 'Windows'
         run: choco install ffmpeg --yes --no-progress
