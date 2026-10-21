@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 import wave
 import xml.etree.ElementTree as ET
 
@@ -43,7 +44,8 @@ def main():
     env = os.environ.copy()
     env['PATH'] = '/usr/bin:/bin:/usr/sbin:/sbin'
     env.pop('PYTHONPATH', None)
-    env['QT_QPA_PLATFORM'] = 'offscreen'
+    # AVFoundation needs Cocoa's native event loop to deliver decoded frames.
+    env['QT_QPA_PLATFORM'] = 'cocoa' if sys.platform == 'darwin' else 'offscreen'
     project = output / 'session.takesync'
     xml = output / 'timeline.fcpxml'
     subprocess.run([str(executable), '--cli', str(video), str(video), str(master),
