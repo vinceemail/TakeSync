@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "takesync"
+version = "0.1.0"
+description = "Local musical-performance alignment and editable FCPXML export"
+requires-python = ">=3.10,<3.14"
+dependencies = ["PySide6>=6.8,<7", "numpy>=1.26,<3", "scipy>=1.12,<2", "librosa>=0.11,<0.12", "soundfile>=0.13,<1", "numba>=0.61,<0.69"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pyinstaller>=6.14", "lxml>=5"]
+
+[project.gui-scripts]
+takesync = "takesync.ui:main"
+
+[tool.setuptools.packages.find]
+include = ["takesync*"]
+
+[tool.setuptools.package-data]
+takesync = ["assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
