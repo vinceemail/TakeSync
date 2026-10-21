@@ -11,6 +11,12 @@ for name in ['ffmpeg', 'ffprobe']:
     if not candidate.exists():
         raise RuntimeError('Run tools/build.py to stage FFmpeg before packaging.')
     native.append((str(candidate), 'vendor'))
+if __import__('sys').platform == 'darwin':
+    import subprocess
+    ffmpeg_prefix = Path(subprocess.check_output(['brew', '--prefix', 'ffmpeg'], text=True).strip())
+    media_libraries = {p.resolve() for pattern in ['libav*.dylib', 'libsw*.dylib']
+                       for p in (ffmpeg_prefix/'lib').glob(pattern)}
+    native.extend((str(p), '.') for p in sorted(media_libraries))
 
 lib_data, lib_bins, lib_hidden = collect_all('librosa')
 a = Analysis([str(root / 'launch.py')], pathex=[str(root)],
@@ -22,6 +28,14 @@ a = Analysis([str(root / 'launch.py')], pathex=[str(root)],
     excludes=['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtPdf', 'matplotlib', 'IPython'],
     module_collection_mode={'librosa':'pyz+py', 'numba':'pyz+py'},
     noarchive=False)
+if __import__('sys').platform == 'darwin':
+    # Qt's bundled FFmpeg has the same dylib names as Homebrew's build but a
+    # different ABI. Playback uses AVFoundation; retain only Homebrew's codecs
+    # so PyInstaller rewrites the CLI tools to their matching dependencies.
+    a.binaries = [entry for entry in a.binaries if not (
+        'PySide6' in entry[1] and (
+            Path(entry[1]).name.startswith(('libav', 'libsw'))
+            or 'ffmpegmediaplugin' in Path(entry[1]).name))]
 if __import__('sys').platform == 'win32':
     # Python 3.10's older app-local MSVC runtime can shadow the newer runtime
     # required by Qt. Ship Qt's backward-compatible runtime at the bundle root.

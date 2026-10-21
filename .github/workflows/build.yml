@@ -2,6 +2,11 @@ name: Desktop builds
 
 on:
   workflow_dispatch:
+    inputs:
+      apple_silicon_only:
+        description: Build only the Apple Silicon app
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 
@@ -13,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, macos-15-intel]
+        os: ${{ fromJSON(inputs.apple_silicon_only && '["macos-latest"]' || '["windows-latest","macos-latest","macos-15-intel"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

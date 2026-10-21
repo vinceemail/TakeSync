@@ -5,6 +5,9 @@ from pathlib import Path
 import multiprocessing
 
 multiprocessing.freeze_support()
+if sys.platform == 'darwin':
+    # Use Apple's playback backend; keep the CLI FFmpeg libraries independent.
+    os.environ.setdefault('QT_MEDIA_BACKEND', 'darwin')
 if getattr(sys, 'frozen', False):
     if sys.platform == 'win32':
         cache = Path(os.environ.get('LOCALAPPDATA', Path.home()))/'TakeSync'/'numba'
