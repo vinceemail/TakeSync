@@ -48,7 +48,7 @@ def main():
     xml = output / 'timeline.fcpxml'
     subprocess.run([str(executable), '--cli', str(video), str(video), str(master),
                     '--output', str(project), '--xml', str(xml), '--preview',
-                    '--in', '2', '--out', '33'], env=env, check=True, timeout=600)
+                    '--in', '2'], env=env, check=True, timeout=600)
     data = json.loads(project.read_text())
     assert len(data['anchors']) > 10, 'Analysis did not generate enough musical anchors'
     assert abs(data['camera_delta']) < .05, 'Identical cameras should have zero offset'
