@@ -10,6 +10,10 @@ on:
         description: Validate only the Apple Silicon artifact
         type: boolean
         default: false
+      publish_apple_silicon:
+        description: Publish a downloadable preview after successful validation
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -43,3 +47,24 @@ jobs:
         with:
           name: Mac-validation-${{ runner.arch }}
           path: bundle-smoke/
+  publish:
+    needs: smoke
+    if: inputs.publish_apple_silicon
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: TakeSync-macOS-ARM64
+          path: downloaded
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.build_run }}
+      - name: Publish tested Apple Silicon preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp downloaded/TakeSync-macOS-ARM64.zip TakeSync-0.1.0-macOS-AppleSilicon.zip
+          gh release create v0.1.0-mac-preview TakeSync-0.1.0-macOS-AppleSilicon.zip --prerelease --title "TakeSync 0.1.0 — Mac preview" --notes-file MAC_PREVIEW.md --target "$(git rev-parse HEAD)"
